@@ -1,4 +1,4 @@
-var jsPDF = require('jspdf')
+var jsPDF = require('jspdf-yworks')
 var lMargin = 15; //left margin in mm
 var rMargin = 15; //right margin in mm
 
