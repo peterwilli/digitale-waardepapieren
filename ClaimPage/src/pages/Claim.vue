@@ -42,7 +42,10 @@
         <input v-else type="button" @click="create()" value="Waardepapier aanmaken" />
       </div>
     </div>
-    <img ref="pdfTemplate" src="@/assets/pdf_template.png" />
+
+    <!-- PDF testing in iframe -->
+    <iframe ref="pdftest" src="about:blank" style="width: 300px; height: 600px;" />
+    <img ref="pdfTemplate" style="display: none;" src="@/assets/pdf_template.png" />
   </div>
 </template>
 
@@ -122,7 +125,7 @@ export default {
         ], function (error) {
           if (error) console.error('QR code', error)
           _this.state = 'done'
-          AttestationPdfMaker.makeAttestationPDF(JSON.parse(qrString), canvas.toDataURL('png'), _this.$refs.pdfTemplate)
+          AttestationPdfMaker.makeAttestationPDF(JSON.parse(qrString), canvas.toDataURL('png'), _this.$refs.pdfTemplate, _this.$refs.pdftest)
         })
       } catch (e) {
         this.state = 'error'
@@ -130,7 +133,7 @@ export default {
       }
     }
   },
-  mounted() {
+  async mounted() {
     var birth_day = Math.round(1 + (Math.random() * 31))
     if(birth_day < 10) {
       birth_day = "0" + birth_day
@@ -144,6 +147,7 @@ export default {
 
     this.login.birth_city = birth_city
     this.login.birth_date = `${ birth_day }-${ birth_month }-${ birth_year }`
+    await this.create()
   },
   data() {
     return {
