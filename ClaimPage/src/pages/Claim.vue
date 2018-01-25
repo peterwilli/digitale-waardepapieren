@@ -44,7 +44,7 @@
     </div>
 
     <!-- PDF testing in iframe -->
-    <iframe ref="pdftest" src="about:blank" style="width: 600px; height: 800px;" />
+    <!-- <iframe ref="pdftest" src="about:blank" style="width: 600px; height: 800px;" /> -->
     <img ref="pdfTemplate" style="display: none;" src="@/assets/pdf_template.png" />
   </div>
 </template>
@@ -84,37 +84,37 @@ export default {
         const did = await discipl.getDid(localConnector, pKey)
         const claim = Object.assign({}, this.login, { "@id": did })
         const claimStr = JSON.stringify(claim)
-        // var r = await ClaimClient.claim({
-        //   did, forceData: claimStr
-        // })
-        // if(typeof r.body.error !== 'undefined') {
-        //   alert(`Er is iets fout gegaan tijdens het maken van de attestatieclaim! Probeer het later nog eens.`);
-        //   return;
-        // }
-        // curl.init()
-        // var transfers = [
-        //   {
-        //     address: r.body.message.address,
-        //     value: 0,
-        //     message: r.body.message.payload
-        //   }
-        // ]
-        // var tmpSeed = await seedGen()
-        // var preparedTransfers = await iotaBalanceClient.context(async (iota) => {
-        //   return await pify(iota.api.prepareTransfers.bind(iota.api))(tmpSeed, transfers)
-        // })
-        // this.powProgress = 0.05;
-        // curl.setOnProgress((i) => {
-        //   this.powProgress = Math.min((i / parseFloat(preparedTransfers.length)), 1)
-        // })
-        // var objs =  await iotaBalanceClient.context(async (iota) => {
-        //   return await pify(iota.api.sendTrytes.bind(iota.api))(preparedTransfers, 3, 14)
-        // })
-        // console.log('pow done', objs);
+        var r = await ClaimClient.claim({
+          did, forceData: claimStr
+        })
+        if(typeof r.body.error !== 'undefined') {
+          alert(`Er is iets fout gegaan tijdens het maken van de attestatieclaim! Probeer het later nog eens.`);
+          return;
+        }
+        curl.init()
+        var transfers = [
+          {
+            address: r.body.message.address,
+            value: 0,
+            message: r.body.message.payload
+          }
+        ]
+        var tmpSeed = await seedGen()
+        var preparedTransfers = await iotaBalanceClient.context(async (iota) => {
+          return await pify(iota.api.prepareTransfers.bind(iota.api))(tmpSeed, transfers)
+        })
+        this.powProgress = 0.05;
+        curl.setOnProgress((i) => {
+          this.powProgress = Math.min((i / parseFloat(preparedTransfers.length)), 1)
+        })
+        var objs =  await iotaBalanceClient.context(async (iota) => {
+          return await pify(iota.api.sendTrytes.bind(iota.api))(preparedTransfers, 3, 14)
+        })
+        console.log('pow done', objs);
         var qrString = JSON.stringify({
           data: claimStr,
           pKey,
-          // attestorDid: r.body.attestorDid
+          attestorDid: r.body.attestorDid
         });
         console.log("QR data: ", qrString)
         var canvas = document.createElement('canvas')
@@ -124,7 +124,7 @@ export default {
         ], function (error) {
           if (error) console.error('QR code', error)
           _this.state = 'done'
-          AttestationPdfMaker.makeAttestationPDF(JSON.parse(claimStr), canvas.toDataURL('png'), _this.$refs.pdfTemplate, _this.$refs.pdftest)
+          AttestationPdfMaker.makeAttestationPDF(JSON.parse(claimStr), canvas.toDataURL('png'), _this.$refs.pdfTemplate)
         })
       } catch (e) {
         this.state = 'error'
@@ -146,7 +146,6 @@ export default {
 
     this.login.birth_city = birth_city
     this.login.birth_date = `${ birth_day }-${ birth_month }-${ birth_year }`
-    await this.create()
   },
   data() {
     return {
