@@ -44,7 +44,7 @@
     </div>
 
     <!-- PDF testing in iframe -->
-    <iframe ref="pdftest" src="about:blank" style="width: 300px; height: 600px;" />
+    <iframe ref="pdftest" src="about:blank" style="width: 600px; height: 800px;" />
     <img ref="pdfTemplate" style="display: none;" src="@/assets/pdf_template.png" />
   </div>
 </template>
@@ -81,9 +81,9 @@ export default {
         const localConnector = new discipl.connectors.local()
         discipl.initState(localConnector, null)
         const pKey = RandomString(32);
-        // const did = await discipl.getDid(localConnector, pKey)
-        // const claim = Object.assign({}, this.login, { "@id": did })
-        // const claimStr = JSON.stringify(claim)
+        const did = await discipl.getDid(localConnector, pKey)
+        const claim = Object.assign({}, this.login, { "@id": did })
+        const claimStr = JSON.stringify(claim)
         // var r = await ClaimClient.claim({
         //   did, forceData: claimStr
         // })
@@ -112,10 +112,9 @@ export default {
         // })
         // console.log('pow done', objs);
         var qrString = JSON.stringify({
-          // data: claimStr,
-          // pKey,
+          data: claimStr,
+          pKey,
           // attestorDid: r.body.attestorDid
-          test: 1
         });
         console.log("QR data: ", qrString)
         var canvas = document.createElement('canvas')
@@ -125,7 +124,7 @@ export default {
         ], function (error) {
           if (error) console.error('QR code', error)
           _this.state = 'done'
-          AttestationPdfMaker.makeAttestationPDF(JSON.parse(qrString), canvas.toDataURL('png'), _this.$refs.pdfTemplate, _this.$refs.pdftest)
+          AttestationPdfMaker.makeAttestationPDF(JSON.parse(claimStr), canvas.toDataURL('png'), _this.$refs.pdfTemplate, _this.$refs.pdftest)
         })
       } catch (e) {
         this.state = 'error'
