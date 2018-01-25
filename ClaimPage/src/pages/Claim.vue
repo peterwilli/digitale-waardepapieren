@@ -1,6 +1,5 @@
 <template lang="html">
   <div id="content" class="CTID-99-_ eb-99-panel content">
-    <pdf-template />
     <div class="CTID-471-_ eb-471-panel service-form wrapper">
       <h3>{{ login.username }}</h3>
       <p>
@@ -43,6 +42,7 @@
         <input v-else type="button" @click="create()" value="Waardepapier aanmaken" />
       </div>
     </div>
+    <img ref="pdfTemplate" src="@/assets/pdf_template.png" />
   </div>
 </template>
 
@@ -52,7 +52,6 @@ import RandomString from '@/utils/RandomString.js'
 import discipl from 'discipl-core'
 import ClaimClient from '@/utils/ClaimClient.js'
 import QrCode from '@/components/qrcode.vue'
-import PdfTemplate from '@/components/pdftemplate.vue'
 import AttestationPdfMaker from '@/utils/AttestationPdfMaker.js'
 import seedGen from '@/utils/seedGen.js'
 import pify from 'pify'
@@ -68,7 +67,7 @@ curl.overrideAttachToTangle(iotaBalanceClient.iota)
 
 export default {
   components: {
-    QrCode, PdfTemplate
+    QrCode
   },
   methods: {
     async create() {
@@ -123,7 +122,7 @@ export default {
         ], function (error) {
           if (error) console.error('QR code', error)
           _this.state = 'done'
-          AttestationPdfMaker.makeAttestationPDF(JSON.parse(qrString), canvas.toDataURL('png'))
+          AttestationPdfMaker.makeAttestationPDF(JSON.parse(qrString), canvas.toDataURL('png'), _this.$refs.pdfTemplate)
         })
       } catch (e) {
         this.state = 'error'
