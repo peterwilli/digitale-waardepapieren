@@ -1,5 +1,6 @@
 <template lang="html">
   <div id="content" class="CTID-99-_ eb-99-panel content">
+    <pdf-template />
     <div class="CTID-471-_ eb-471-panel service-form wrapper">
       <h3>{{ login.username }}</h3>
       <p>
@@ -51,6 +52,7 @@ import RandomString from '@/utils/RandomString.js'
 import discipl from 'discipl-core'
 import ClaimClient from '@/utils/ClaimClient.js'
 import QrCode from '@/components/qrcode.vue'
+import PdfTemplate from '@/components/pdftemplate.vue'
 import AttestationPdfMaker from '@/utils/AttestationPdfMaker.js'
 import seedGen from '@/utils/seedGen.js'
 import pify from 'pify'
@@ -66,7 +68,7 @@ curl.overrideAttachToTangle(iotaBalanceClient.iota)
 
 export default {
   components: {
-    QrCode
+    QrCode, PdfTemplate
   },
   methods: {
     async create() {
@@ -77,40 +79,41 @@ export default {
         const localConnector = new discipl.connectors.local()
         discipl.initState(localConnector, null)
         const pKey = RandomString(32);
-        const did = await discipl.getDid(localConnector, pKey)
-        const claim = Object.assign({}, this.login, { "@id": did })
-        const claimStr = JSON.stringify(claim)
-        var r = await ClaimClient.claim({
-          did, forceData: claimStr
-        })
-        if(typeof r.body.error !== 'undefined') {
-          alert(`Er is iets fout gegaan tijdens het maken van de attestatieclaim! Probeer het later nog eens.`);
-          return;
-        }
-        curl.init()
-        var transfers = [
-          {
-            address: r.body.message.address,
-            value: 0,
-            message: r.body.message.payload
-          }
-        ]
-        var tmpSeed = await seedGen()
-        var preparedTransfers = await iotaBalanceClient.context(async (iota) => {
-          return await pify(iota.api.prepareTransfers.bind(iota.api))(tmpSeed, transfers)
-        })
-        this.powProgress = 0.05;
-        curl.setOnProgress((i) => {
-          this.powProgress = Math.min((i / parseFloat(preparedTransfers.length)), 1)
-        })
-        var objs =  await iotaBalanceClient.context(async (iota) => {
-          return await pify(iota.api.sendTrytes.bind(iota.api))(preparedTransfers, 3, 14)
-        })
-        console.log('pow done', objs);
+        // const did = await discipl.getDid(localConnector, pKey)
+        // const claim = Object.assign({}, this.login, { "@id": did })
+        // const claimStr = JSON.stringify(claim)
+        // var r = await ClaimClient.claim({
+        //   did, forceData: claimStr
+        // })
+        // if(typeof r.body.error !== 'undefined') {
+        //   alert(`Er is iets fout gegaan tijdens het maken van de attestatieclaim! Probeer het later nog eens.`);
+        //   return;
+        // }
+        // curl.init()
+        // var transfers = [
+        //   {
+        //     address: r.body.message.address,
+        //     value: 0,
+        //     message: r.body.message.payload
+        //   }
+        // ]
+        // var tmpSeed = await seedGen()
+        // var preparedTransfers = await iotaBalanceClient.context(async (iota) => {
+        //   return await pify(iota.api.prepareTransfers.bind(iota.api))(tmpSeed, transfers)
+        // })
+        // this.powProgress = 0.05;
+        // curl.setOnProgress((i) => {
+        //   this.powProgress = Math.min((i / parseFloat(preparedTransfers.length)), 1)
+        // })
+        // var objs =  await iotaBalanceClient.context(async (iota) => {
+        //   return await pify(iota.api.sendTrytes.bind(iota.api))(preparedTransfers, 3, 14)
+        // })
+        // console.log('pow done', objs);
         var qrString = JSON.stringify({
-          data: claimStr,
-          pKey,
-          attestorDid: r.body.attestorDid
+          // data: claimStr,
+          // pKey,
+          // attestorDid: r.body.attestorDid
+          test: 1
         });
         console.log("QR data: ", qrString)
         var canvas = document.createElement('canvas')
